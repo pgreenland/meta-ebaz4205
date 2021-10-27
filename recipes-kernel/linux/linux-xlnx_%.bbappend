@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/config:"
 
 SRC_URI_append = " \
                  file://bsp/net/eth.scc \
@@ -6,6 +6,6 @@ SRC_URI_append = " \
                  "
 
 KERNEL_FEATURES_append = " \  
-                         bsp/net/eth.scc \
-                         bsp/fs/mtd.scc \
+                         eth.scc \
+                         mtd.scc \
                          "
