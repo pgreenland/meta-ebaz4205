@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/config:${THISDIR}/files:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI_append = " \
                  file://bsp/net/eth.scc \
