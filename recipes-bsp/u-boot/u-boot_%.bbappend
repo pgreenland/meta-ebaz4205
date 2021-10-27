@@ -1,7 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 # our u-boot 2019.07 is forked, branched and patched for the support
-SRCREV = "62c904685730ba8b2418129bee405e3a2dc172e6"
+SRCREV = "ec30ee60b706cfc61d2566eb9dae614118032b3b"
 
 SRC_URI_remove = "git://git.denx.de/u-boot.git "
 SRC_URI_prepend = "git://github.com/embed-me/u-boot.git;branch=v2019.07-ebaz4205 "
@@ -19,4 +19,5 @@ do_configure_prepend() {
         cp ${WORKDIR}/ps7_init_gpl.h ${S}/board/embedme/ebaz4205/${MACHINE}/
         cp ${WORKDIR}/ps7_init_gpl.c ${S}/board/embedme/ebaz4205/${MACHINE}/
         chmod 664 ${S}/board/embedme/ebaz4205/${MACHINE}/*
+        sed -i 's/YYLTYPE yylloc;//' ${S}/scripts/dtc/dtc-lexer.l
 }

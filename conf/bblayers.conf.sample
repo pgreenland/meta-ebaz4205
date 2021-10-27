@@ -14,5 +14,6 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-python \
   ##OEROOT##/meta-ebaz4205 \
+  ##OEROOT##/meta-xilinx/meta-xilinx-standalone \
   "
 
