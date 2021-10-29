@@ -12771,7 +12771,7 @@ index 0000000000..c476c902eb
 +#endif /* XIL_IO_H */
 diff --git a/configs/zynq_ebaz4205_defconfig b/configs/zynq_ebaz4205_defconfig
 new file mode 100644
-index 0000000000..dfc90b7a85
+index 0000000000..cdaaacdef2
 --- /dev/null
 +++ b/configs/zynq_ebaz4205_defconfig
 @@ -0,0 +1,76 @@
@@ -12787,7 +12787,7 @@ index 0000000000..dfc90b7a85
 +CONFIG_FIT=y
 +CONFIG_FIT_SIGNATURE=y
 +CONFIG_FIT_VERBOSE=y
-+CONFIG_IMAGE_FORMAT_LEGACY=y
++CONFIG_LEGACY_IMAGE_FORMAT=y
 +CONFIG_SPL_STACK_R=y
 +CONFIG_SPL_OS_BOOT=y
 +CONFIG_SPL_SPI_LOAD=y
@@ -12851,7 +12851,6 @@ index 0000000000..dfc90b7a85
 +CONFIG_SYS_SOC="zynq"
 +CONFIG_SYS_CONFIG_NAME="zynq-ebaz4205"
 +CONFIG_DEFAULT_DEVICE_TREE="zynq-ebaz4205"
-\ No newline at end of file
 diff --git a/include/configs/zynq-ebaz4205.h b/include/configs/zynq-ebaz4205.h
 new file mode 100644
 index 0000000000..f939cdc785
