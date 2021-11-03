@@ -6,6 +6,7 @@ IMAGE_INSTALL += "\
         net-tools \
         nfs-utils \
         mtd-utils \
+        mtd-utils-ubifs \
         devmem2 \
         strace \
 	uioctl \

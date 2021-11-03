@@ -1,7 +1,8 @@
 # Use file hosted in repo
-HDF_PATH = "github.com/pgreenland/ebaz4205_xsa.git;branch=rel-v2021.2"
+HDF_PATH = "github.com/pgreenland/ebaz4205_xsa.git"
+BRANCH = "rel-v2021.2"
 HDF_NAME = "ebaz4205_top.xsa"
-SRCREV = "6c57dd8e2512f650dd8d43cb06ba46c7b256dd22"
+SRCREV = "365e02c47e802d0f8f8cf6d13c73b9c72fee2f26"
 
 # Use local file
 #HDF_BASE = "file://"

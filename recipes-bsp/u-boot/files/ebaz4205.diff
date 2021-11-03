@@ -1,8 +1,8 @@
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index f5a7630e4f..9552e55072 100644
+index 54d65f84..75d73535 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -1694,6 +1694,7 @@ source "board/broadcom/bcmns2/Kconfig"
+@@ -1878,6 +1878,7 @@ source "board/broadcom/bcmns2/Kconfig"
  source "board/cavium/thunderx/Kconfig"
  source "board/cirrus/edb93xx/Kconfig"
  source "board/eets/pdu001/Kconfig"
@@ -11,10 +11,10 @@ index f5a7630e4f..9552e55072 100644
  source "board/freescale/ls2080a/Kconfig"
  source "board/freescale/ls2080aqds/Kconfig"
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 20dbc2ff84..4db2f100d5 100644
+index 9900b442..35893a26 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
-@@ -219,6 +219,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+@@ -247,6 +247,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-cse-nor.dtb \
  	zynq-cse-qspi-single.dtb \
  	zynq-dlc20-rev1.0.dtb \
@@ -24,10 +24,10 @@ index 20dbc2ff84..4db2f100d5 100644
  	zynq-picozed.dtb \
 diff --git a/arch/arm/dts/board-ebaz4205.dtsi b/arch/arm/dts/board-ebaz4205.dtsi
 new file mode 100644
-index 0000000000..01c65f5c24
+index 00000000..98f552d8
 --- /dev/null
 +++ b/arch/arm/dts/board-ebaz4205.dtsi
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,88 @@
 +/ {
 +	chosen {
 +		bootargs = "console=ttyPS0,115200 earlyprintk root=/dev/mmcblk0p2 rw";
@@ -105,9 +105,20 @@ index 0000000000..01c65f5c24
 +&gpio0 {
 +        gpio-mask-low = <0x5600>;
 +};
++
++&smcc {
++	status = "okay";
++};
++
++&nand0 {
++	status = "okay";
++        nand-ecc-mode = "none";
++        nand-bus-width = <8>;
++};
++
 diff --git a/arch/arm/dts/zynq-ebaz4205.dts b/arch/arm/dts/zynq-ebaz4205.dts
 new file mode 100644
-index 0000000000..c42b333536
+index 00000000..c42b3335
 --- /dev/null
 +++ b/arch/arm/dts/zynq-ebaz4205.dts
 @@ -0,0 +1,5 @@
@@ -117,7 +128,7 @@ index 0000000000..c42b333536
 +/ {
 +};
 diff --git a/arch/arm/mach-zynq/Kconfig b/arch/arm/mach-zynq/Kconfig
-index 79f831e6df..9bdde0b4dd 100644
+index 79f831e6..9bdde0b4 100644
 --- a/arch/arm/mach-zynq/Kconfig
 +++ b/arch/arm/mach-zynq/Kconfig
 @@ -37,18 +37,18 @@ config ZYNQ_DDRC_INIT
@@ -144,7 +155,7 @@ index 79f831e6df..9bdde0b4dd 100644
  	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
 diff --git a/board/embedme/ebaz4205/Kconfig b/board/embedme/ebaz4205/Kconfig
 new file mode 100644
-index 0000000000..b2ea3066fc
+index 00000000..b2ea3066
 --- /dev/null
 +++ b/board/embedme/ebaz4205/Kconfig
 @@ -0,0 +1,15 @@
@@ -165,7 +176,7 @@ index 0000000000..b2ea3066fc
 +endif
 diff --git a/board/embedme/ebaz4205/Makefile b/board/embedme/ebaz4205/Makefile
 new file mode 100644
-index 0000000000..836da6188f
+index 00000000..836da618
 --- /dev/null
 +++ b/board/embedme/ebaz4205/Makefile
 @@ -0,0 +1,11 @@
@@ -182,7 +193,7 @@ index 0000000000..836da6188f
 +CFLAGS_REMOVE_ps7_init_gpl.o := -Wstrict-prototypes
 diff --git a/board/embedme/ebaz4205/ebaz4205.c b/board/embedme/ebaz4205/ebaz4205.c
 new file mode 100644
-index 0000000000..291e972f83
+index 00000000..291e972f
 --- /dev/null
 +++ b/board/embedme/ebaz4205/ebaz4205.c
 @@ -0,0 +1,164 @@
@@ -352,7 +363,7 @@ index 0000000000..291e972f83
 +#endif
 diff --git a/board/embedme/ebaz4205/ebaz4205.h b/board/embedme/ebaz4205/ebaz4205.h
 new file mode 100644
-index 0000000000..0948bbd4e3
+index 00000000..0948bbd4
 --- /dev/null
 +++ b/board/embedme/ebaz4205/ebaz4205.h
 @@ -0,0 +1,13 @@
@@ -371,7 +382,7 @@ index 0000000000..0948bbd4e3
 +#endif /* BOARD_XILINX_COMMON_BOARD_H */
 diff --git a/board/embedme/ebaz4205/ps7_init_gpl.c b/board/embedme/ebaz4205/ps7_init_gpl.c
 new file mode 100644
-index 0000000000..13d59fdbd5
+index 00000000..13d59fdb
 --- /dev/null
 +++ b/board/embedme/ebaz4205/ps7_init_gpl.c
 @@ -0,0 +1,12224 @@
@@ -12601,7 +12612,7 @@ index 0000000000..13d59fdbd5
 +
 diff --git a/board/embedme/ebaz4205/ps7_init_gpl.h b/board/embedme/ebaz4205/ps7_init_gpl.h
 new file mode 100644
-index 0000000000..06dd8b46c4
+index 00000000..06dd8b46
 --- /dev/null
 +++ b/board/embedme/ebaz4205/ps7_init_gpl.h
 @@ -0,0 +1,131 @@
@@ -12738,7 +12749,7 @@ index 0000000000..06dd8b46c4
 +
 diff --git a/board/embedme/ebaz4205/xil_io.h b/board/embedme/ebaz4205/xil_io.h
 new file mode 100644
-index 0000000000..c476c902eb
+index 00000000..c476c902
 --- /dev/null
 +++ b/board/embedme/ebaz4205/xil_io.h
 @@ -0,0 +1,27 @@
@@ -12771,10 +12782,10 @@ index 0000000000..c476c902eb
 +#endif /* XIL_IO_H */
 diff --git a/configs/zynq_ebaz4205_defconfig b/configs/zynq_ebaz4205_defconfig
 new file mode 100644
-index 0000000000..cdaaacdef2
+index 00000000..4c5d549d
 --- /dev/null
 +++ b/configs/zynq_ebaz4205_defconfig
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,82 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_ZYNQ=y
 +CONFIG_SYS_TEXT_BASE=0x4000000
@@ -12807,7 +12818,9 @@ index 0000000000..cdaaacdef2
 +CONFIG_CMD_TFTPPUT=y
 +CONFIG_CMD_CACHE=y
 +CONFIG_CMD_EXT4_WRITE=y
-+CONFIG_ENV_IS_IN_SPI_FLASH=y
++CONFIG_ENV_IS_IN_NAND=y
++CONFIG_ENV_OFFSET=0x2E0000
++CONFIG_ENV_SIZE=0x20000
 +CONFIG_NET_RANDOM_ETHADDR=y
 +CONFIG_SPL_DM_SEQ_ALIAS=y
 +CONFIG_DFU_MMC=y
@@ -12842,6 +12855,10 @@ index 0000000000..cdaaacdef2
 +CONFIG_CI_UDC=y
 +CONFIG_MTD=y
 +CONFIG_MTD_DEVICE=y
++CONFIG_MTD_RAW_NAND=y
++CONFIG_NAND_ZYNQ=y
++CONFIG_CMD_NAND=y
++CONFIG_CMD_MTD=y
 +CONFIG_USB_GADGET_DOWNLOAD=y
 +CONFIG_USB_FUNCTION_THOR=y
 +CONFIG_OF_EMBED=y
@@ -12853,10 +12870,10 @@ index 0000000000..cdaaacdef2
 +CONFIG_DEFAULT_DEVICE_TREE="zynq-ebaz4205"
 diff --git a/include/configs/zynq-ebaz4205.h b/include/configs/zynq-ebaz4205.h
 new file mode 100644
-index 0000000000..f939cdc785
+index 00000000..d877e7fd
 --- /dev/null
 +++ b/include/configs/zynq-ebaz4205.h
-@@ -0,0 +1,112 @@
+@@ -0,0 +1,136 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * (C) Copyright 2020 embed-me
@@ -12888,6 +12905,11 @@ index 0000000000..f939cdc785
 +            "echo Abort boot...;" \
 +    "fi;" \
 +
++/* override nice handoff feature above as the s2 button on at least one board shows 1.3v on the io pin at all times, causing it to falsely trigger */
++#undef CONFIG_BOOTCOMMAND
++#define CONFIG_BOOTCOMMAND "run $modeboot;"
++#undef CONFIG_BOOTDELAY
++#define CONFIG_BOOTDELAY 3
 +
 +/* We do not comply with FIT images yet */
 +#undef CONFIG_EXTRA_ENV_SETTINGS
@@ -12947,24 +12969,43 @@ index 0000000000..f939cdc785
 +			"run uenvcmd; " \
 +		"fi\0" \
 +	"sdboot=if mmcinfo; then " \
-+                        "run leds_bootstate_0;" \
++                       "run leds_bootstate_0;" \
 +			"run uenvboot;" \
 +			"echo Copying Linux from SD to RAM...;" \
++/* \
++			PG: initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header, we instead use sd root partition directly 
 +			"run mmc_loadkernel && run mmc_loaddtb && run mmc_loadramdisk && run leds_bootstate_2;" \
-+                        "echo Handoff to Linux kernel...;" \
++                       "echo Handoff to Linux kernel...;" \
 +			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
++*/ \
++			"run mmc_loadkernel && run mmc_loaddtb && run leds_bootstate_2;" \
++                       "echo Handoff to Linux kernel...;" \
++			"bootm ${kernel_load_address} - ${devicetree_load_address}; " \
 +		"fi\0" \
 +	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
-+		"nand read ${kernel_load_address} 0x100000 ${kernel_size} && " \
-+		"nand read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
++		"run leds_bootstate_0;" \
++		"nand read ${kernel_load_address} 0x300000 ${kernel_size} && " \
++		"nand read ${devicetree_load_address} 0x800000 ${devicetree_size} && " \
++/* \
++		PG: initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header, we instead use usbfs directly 
 +		"echo Copying ramdisk... && " \
-+		"nand read ${ramdisk_load_address} 0x620000 ${ramdisk_size} && " \
++		"nand read ${ramdisk_load_address} 0x820000 ${ramdisk_size} && " \
 +		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
++*/ \
++		"run leds_bootstate_2 && " \
++		"bootm ${kernel_load_address} - ${devicetree_load_address}\0" \
 +	"jtagboot=echo TFTPing Linux to RAM... && " \
++		"run leds_bootstate_0 && " \
 +		"tftpboot ${kernel_load_address} ${kernel_image} && " \
 +		"tftpboot ${devicetree_load_address} ${devicetree_image} && " \
++/* \
++		PG: initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header, we instead use usbfs directly 
 +		"tftpboot ${ramdisk_load_address} ${ramdisk_image} && " \
 +		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
++*/ \
++		"run leds_bootstate_2 && " \
++		"bootm ${kernel_load_address} - ${devicetree_load_address}\0" \
++	"mtdparts=nand0:0x2E0000(fsbl_bitstream_uboot),0x20000(uboot_env),0x500000(kernel),0x20000(device_tree),-(rootfs)\0" \
 +        	DFU_ALT_INFO \
 +		BOOTENV
 +

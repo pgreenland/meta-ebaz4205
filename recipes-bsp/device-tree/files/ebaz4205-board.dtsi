@@ -85,22 +85,26 @@
         		#address-cells = <1>;
         		#size-cells = <1>;
                 
-                        partition0: partition@0 {
-        		         label = "partition0";
-                                 reg = <0x0000000 0x1ffffff>;
-                        };
-                        partition1: partition@2000000 {
-        		         label = "partition1";
-                                 reg = <0x2000000 0x3ffffff>;
-                        };
-                        partition2: partition@4000000 {
-        		         label = "partition2";
-                                 reg = <0x4000000 0x5ffffff>;
-                        };
-                        partition3: partition@6000000 {
-        		         label = "partition3";
-                                 reg = <0x6000000 0x7ffffff>;
-                        };
+			partition0: partition@0 {
+				label = "fsbl_bitstream_uboot";
+				reg = <0x0000000 0x2e0000>;
+			};
+			partition1: partition@2e0000 {
+				label = "uboot_env";
+				reg = <0x2e0000 0x20000>;
+			};
+			partition2: partition@300000 {
+				label = "kernel";
+				reg = <0x300000 0x500000>;
+			};
+			partition3: partition@800000 {
+				label = "device_tree";
+				reg = <0x800000 0x20000>;
+			};
+			partition4: partition@820000 {
+				label = "rootfs";
+				reg = <0x820000 0x77E0000>;
+			};
                 };
         };
 };
