@@ -84,26 +84,30 @@
         		compatible = "fixed-partitions";
         		#address-cells = <1>;
         		#size-cells = <1>;
-                
+
 			partition0: partition@0 {
-				label = "fsbl_bitstream_uboot";
-				reg = <0x0000000 0x2e0000>;
+				label = "fsbl_uboot";
+				reg = <0x0 0x120000>;
 			};
-			partition1: partition@2e0000 {
+			partition1: partition@120000 {
 				label = "uboot_env";
-				reg = <0x2e0000 0x20000>;
+				reg = <0x120000 0x20000>;
 			};
-			partition2: partition@300000 {
+			partition2: partition@140000 {
+				label = "bitstream";
+				reg = <0x140000 0x200000>;
+			};
+			partition3: partition@340000 {
 				label = "kernel";
-				reg = <0x300000 0x500000>;
+				reg = <0x340000 0x500000>;
 			};
-			partition3: partition@800000 {
+			partition4: partition@840000 {
 				label = "device_tree";
-				reg = <0x800000 0x20000>;
+				reg = <0x840000 0x20000>;
 			};
-			partition4: partition@820000 {
+			partition5: partition@860000 {
 				label = "rootfs";
-				reg = <0x820000 0x77E0000>;
+				reg = <0x860000 0x77A0000>;
 			};
                 };
         };

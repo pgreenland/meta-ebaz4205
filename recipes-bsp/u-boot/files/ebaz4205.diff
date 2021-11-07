@@ -12782,7 +12782,7 @@ index 00000000..c476c902
 +#endif /* XIL_IO_H */
 diff --git a/configs/zynq_ebaz4205_defconfig b/configs/zynq_ebaz4205_defconfig
 new file mode 100644
-index 00000000..4c5d549d
+index 00000000..e1514e05
 --- /dev/null
 +++ b/configs/zynq_ebaz4205_defconfig
 @@ -0,0 +1,82 @@
@@ -12819,7 +12819,7 @@ index 00000000..4c5d549d
 +CONFIG_CMD_CACHE=y
 +CONFIG_CMD_EXT4_WRITE=y
 +CONFIG_ENV_IS_IN_NAND=y
-+CONFIG_ENV_OFFSET=0x2E0000
++CONFIG_ENV_OFFSET=0x120000
 +CONFIG_ENV_SIZE=0x20000
 +CONFIG_NET_RANDOM_ETHADDR=y
 +CONFIG_SPL_DM_SEQ_ALIAS=y
@@ -12868,12 +12868,25 @@ index 00000000..4c5d549d
 +CONFIG_SYS_SOC="zynq"
 +CONFIG_SYS_CONFIG_NAME="zynq-ebaz4205"
 +CONFIG_DEFAULT_DEVICE_TREE="zynq-ebaz4205"
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index cce09c47..23696f11 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -750,7 +750,7 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
+ 		 * there are C22 PHYs that return all 0s for C45 reads (like
+ 		 * Atheros AR8035).
+ 		 */
+-		if (r == 0 && phy_id == 0)
++		if (r == 0 && phy_id == 0 && false) /* PG: This prevents the phy from being initialized, before the bitstream loaded, as the clock is not yet present. Disable bug fix that we rely on */
+ 			goto next;
+ 
+ 		/* If the PHY ID is mostly f's, we didn't find anything */
 diff --git a/include/configs/zynq-ebaz4205.h b/include/configs/zynq-ebaz4205.h
 new file mode 100644
-index 00000000..d877e7fd
+index 00000000..b012b630
 --- /dev/null
 +++ b/include/configs/zynq-ebaz4205.h
-@@ -0,0 +1,136 @@
+@@ -0,0 +1,178 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * (C) Copyright 2020 embed-me
@@ -12885,17 +12898,12 @@ index 00000000..d877e7fd
 +#ifndef __CONFIG_ZYNQ_EBAZ4205_H
 +#define __CONFIG_ZYNQ_EBAZ4205_H
 +
-+
 +/* Configuration for zynq-common.h */
-+//#define CONFIG_ZYNQ_GEM
-+//#define CONFIG_CMD_DHCP
 +#include <configs/zynq-common.h>
-+
 +
 +/* We use s2-Button to avoid handoff */
 +#undef CONFIG_BOOTDELAY
 +#define CONFIG_BOOTDELAY 0
-+
 +
 +/* We do not comply with mainline yet */
 +#undef CONFIG_BOOTCOMMAND
@@ -12905,7 +12913,7 @@ index 00000000..d877e7fd
 +            "echo Abort boot...;" \
 +    "fi;" \
 +
-+/* override nice handoff feature above as the s2 button on at least one board shows 1.3v on the io pin at all times, causing it to falsely trigger */
++/* PG: override nice handoff feature above as the s2 button on at least one board shows 1.3v on the io pin at all times, causing it to falsely trigger */
 +#undef CONFIG_BOOTCOMMAND
 +#define CONFIG_BOOTCOMMAND "run $modeboot;"
 +#undef CONFIG_BOOTDELAY
@@ -12913,52 +12921,123 @@ index 00000000..d877e7fd
 +
 +/* We do not comply with FIT images yet */
 +#undef CONFIG_EXTRA_ENV_SETTINGS
-+#define CONFIG_EXTRA_ENV_SETTINGS	\
++#define CONFIG_EXTRA_ENV_SETTINGS \
 +	"kernel_image=uImage\0"	\
 +	"kernel_load_address=0x2080000\0" \
-+        "kernel_size=0x500000\0" \
-+        "mmc_loadkernel=load mmc 0 ${kernel_load_address} ${kernel_image}\0" \
-+	"ramdisk_image=ebaz4205-image-minimal-ebaz4205-zynq7.cpio.gz.u-boot\0"	\
-+	"ramdisk_load_address=0x4000000\0"	\
-+        "ramdisk_size=0x5E0000\0" \
-+        "mmc_loadramdisk=load mmc 0 ${ramdisk_load_address} ${ramdisk_image}\0" \
-+	"devicetree_image=ebaz4205-zynq7.dtb\0"	\
-+	"devicetree_load_address=0x2000000\0"	\
-+        "devicetree_size=0x20000\0"             \
-+        "mmc_loaddtb=load mmc 0 ${devicetree_load_address} ${devicetree_image}\0" \
++	"kernel_nand_address=0x340000\0" \
++	"kernel_size=0x500000\0" \
++	"mmc_loadkernel=load mmc 0 ${kernel_load_address} ${kernel_image}\0" \
++	"nand_loadkernel=nand read ${kernel_load_address} ${kernel_nand_address} ${kernel_size}\0" \
++	\
++	"devicetree_image=ebaz4205-zynq7.dtb\0" \
++	"devicetree_load_address=0x2000000\0" \
++	"devicetree_nand_address=0x840000\0" \
++	"devicetree_size=0x20000\0" \
++	"mmc_loaddtb=load mmc 0 ${devicetree_load_address} ${devicetree_image}\0" \
++	"nand_loaddtb=nand read ${devicetree_load_address} ${devicetree_nand_address} ${devicetree_size}\0" \
++	\
 +	"bitstream_image=download-ebaz4205-zynq7.bit\0"	\
 +	"bitstream_load_address=0x100000\0"	\
-+        "mmc_loadfpga=load mmc 0 ${bitstream_load_address} ${bitstream_image}\0" \
-+        "fpga_config=fpga load 0 ${bitstream_load_address} ${filesize}\0" \
++	"bitstream_nand_address=0x140000\0"	\
++	"bitstream_size=0x200000\0"	\
++	"fpga_config=fpga loadb 0 ${bitstream_load_address} ${bitstream_size}\0" \
++	"mmc_loadfpga=load mmc 0 ${bitstream_load_address} ${bitstream_image}\0" \
++	"nand_loadfpga=nand read ${bitstream_load_address} ${bitstream_nand_address} ${bitstream_size}\0" \
++	\
 +	"loadbootenv_addr=0x2000000\0" \
 +	"bootenv=uEnv.txt\0" \
-+	"loadbootenv=load mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
-+	"importbootenv=echo Importing environment from SD ...; " \
-+		"env import -t ${loadbootenv_addr} $filesize\0" \
-+	"sd_uEnvtxt_existence_test=test -e mmc 0 /uEnv.txt\0" \
-+        "s2_button_pressed_test=gpio input 20;\0" \
-+        "leds_bootstate_0=gpio clear 54; gpio clear 55;\0" \
-+        "leds_bootstate_1=gpio clear 54; gpio set 55;\0" \
-+        "leds_bootstate_2=gpio set 54; gpio clear 55;\0" \
-+        "leds_bootstate_3=gpio set 54; gpio set 55;\0" \
-+	"preboot=if test $modeboot = sdboot && env run sd_uEnvtxt_existence_test; " \
-+			"then if env run loadbootenv; " \
++	"mmc_loadbootenv=echo Loading environment from SD ...; " \
++		"load mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
++	"importbootenv=echo Importing environment from RAM ...; " \
++		"env import -t ${loadbootenv_addr} ${filesize}\0" \
++	"mmc_uEnvtxt_exists=test -e mmc 0 /uEnv.txt\0" \
++	\
++	"leds_bootstate_0=gpio clear 54; gpio clear 55; true\0" \
++	"leds_bootstate_1=gpio clear 54; gpio set 55; true\0" \
++	"leds_bootstate_2=gpio set 54; gpio clear 55; true\0" \
++	"leds_bootstate_3=gpio set 54; gpio set 55; true\0" \
++	\
++	"preboot=if env run mmc_uEnvtxt_exists; " \
++			"then if env run mmc_loadbootenv; " \
 +				"then env run importbootenv; " \
 +			"fi; " \
 +		"fi; \0" \
-+	"norboot=echo Copying Linux from NOR flash to RAM... && " \
-+		"cp.b 0xE2100000 ${kernel_load_address} ${kernel_size} && " \
-+		"cp.b 0xE2600000 ${devicetree_load_address} ${devicetree_size} && " \
-+		"echo Copying ramdisk... && " \
-+		"cp.b 0xE2620000 ${ramdisk_load_address} ${ramdisk_size} && " \
++	\
++	"sdboot=if mmcinfo; then " \
++			"run leds_bootstate_0 && " \
++			"echo Copy FPGA image from SD to RAM... && " \
++			"run mmc_loadfpga && " \
++			"echo Program FPGA from RAM... && " \
++			"run fpga_config && " \
++			"echo Copying Linux from SD to RAM... && " \
++			"run mmc_loadkernel && run mmc_loaddtb && " \
++			"run leds_bootstate_2 && " \
++			"echo Handoff to Linux kernel... && " \
++			"bootm ${kernel_load_address} - ${devicetree_load_address}; " \
++		"fi\0" \
++	"nandboot=run leds_bootstate_0 && " \
++		"echo Copy FPGA image from NAND to RAM... && " \
++		"run nand_loadfpga && " \
++		"echo Program FPGA from RAM... && " \
++		"run fpga_config && " \
++		"echo Copying Linux from NAND flash to RAM... && " \
++		"run nand_loadkernel && run nand_loaddtb && " \
++		"run leds_bootstate_2 && " \
++		"bootm ${kernel_load_address} - ${devicetree_load_address}\0" \
++	"jtagboot=run leds_bootstate_0 && " \
++		"echo TFTPing Linux to RAM... &&" \
++		"tftpboot ${kernel_load_address} ${kernel_image} && " \
++		"tftpboot ${devicetree_load_address} ${devicetree_image} && " \
++		"run leds_bootstate_2 && " \
++		"bootm ${kernel_load_address} - ${devicetree_load_address}\0" /* \ */
++		/* DFU_ALT_INFO \ */
++		/* BOOTENV */
++
++/*
++	// PG: Alternative SD boot - initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header
++	"sdboot=if mmcinfo; then " \
++			"run leds_bootstate_0 && " \
++			"echo Copy FPGA image from SD to RAM... && " \
++			"run mmc_loadfpga && " \
++			"echo Program FPGA from RAM... && " \
++			"run fpga_config && " \
++			"echo Copying Linux from SD to RAM... && " \
++			"run mmc_loadkernel && run mmc_loaddtb && run mmc_loadramdisk && " \
++			"run leds_bootstate_2 && " \
++			"echo Handoff to Linux kernel... && " \
++			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
++		"fi\0" \
++
++	// PG: Alternative NAND boot - initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header
++	"nandboot=run leds_bootstate_0 && " \
++		"echo Copy FPGA image from NAND to RAM... && " \
++		"run nand_loadfpga && " \
++		"echo Program FPGA from RAM... && " \
++		"run fpga_config && " \
++		"echo Copying Linux from NAND to RAM... && " \
++		"run nand_loadkernel && run nand_loaddtb && run nand_loadramdisk && " \
++		"run leds_bootstate_2 && " \
 +		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-+	"qspiboot=echo Copying Linux from QSPI flash to RAM... && " \
-+		"sf probe 0 0 0 && " \
-+		"sf read ${kernel_load_address} 0x100000 ${kernel_size} && " \
-+		"sf read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
-+		"echo Copying ramdisk... && " \
-+		"sf read ${ramdisk_load_address} 0x620000 ${ramdisk_size} && " \
++
++	// PG: Alternative JTAG boot - initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header
++	"jtagboot=run leds_bootstate_0 && " \
++		"echo TFTPing Linux to RAM... &&" \
++		"tftpboot ${kernel_load_address} ${kernel_image} && " \
++		"tftpboot ${devicetree_load_address} ${devicetree_image} && " \
++		"tftpboot ${ramdisk_load_address} ${ramdisk_image} && " \
++		"run leds_bootstate_2 && " \
 +		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
++
++	"ramdisk_image=ebaz4205-image-minimal-ebaz4205-zynq7.cpio.gz.u-boot\0"	\
++	"ramdisk_load_address=0x4000000\0"	\
++	"ramdisk_nand_address=0x340000\0"	\
++	"ramdisk_size=0x5E0000\0" \
++	"mmc_loadramdisk=load mmc 0 ${ramdisk_load_address} ${ramdisk_image}\0" \
++	"nand_loadramdisk=nand read ${ramdisk_load_address} ${ramdisk_nand_address} ${ramdisk_size}\0" \
++
++	// PG: Unused env strings from embedme
++	"s2_button_pressed_test=gpio input 20;\0" \
++
 +	"uenvboot=" \
 +		"if run loadbootenv; then " \
 +			"echo Loaded environment from ${bootenv}; " \
@@ -12968,45 +13047,21 @@ index 00000000..d877e7fd
 +			"echo Running uenvcmd ...; " \
 +			"run uenvcmd; " \
 +		"fi\0" \
-+	"sdboot=if mmcinfo; then " \
-+                       "run leds_bootstate_0;" \
-+			"run uenvboot;" \
-+			"echo Copying Linux from SD to RAM...;" \
-+/* \
-+			PG: initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header, we instead use sd root partition directly 
-+			"run mmc_loadkernel && run mmc_loaddtb && run mmc_loadramdisk && run leds_bootstate_2;" \
-+                       "echo Handoff to Linux kernel...;" \
-+			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
-+*/ \
-+			"run mmc_loadkernel && run mmc_loaddtb && run leds_bootstate_2;" \
-+                       "echo Handoff to Linux kernel...;" \
-+			"bootm ${kernel_load_address} - ${devicetree_load_address}; " \
-+		"fi\0" \
-+	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
-+		"run leds_bootstate_0;" \
-+		"nand read ${kernel_load_address} 0x300000 ${kernel_size} && " \
-+		"nand read ${devicetree_load_address} 0x800000 ${devicetree_size} && " \
-+/* \
-+		PG: initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header, we instead use usbfs directly 
++
++	"norboot=echo Copying Linux from NOR flash to RAM... && " \
++		"cp.b 0xE2100000 ${kernel_load_address} ${kernel_size} && " \
++		"cp.b 0xE2600000 ${devicetree_load_address} ${devicetree_size} && " \
 +		"echo Copying ramdisk... && " \
-+		"nand read ${ramdisk_load_address} 0x820000 ${ramdisk_size} && " \
++		"cp.b 0xE2620000 ${ramdisk_load_address} ${ramdisk_size} && " \
 +		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-+*/ \
-+		"run leds_bootstate_2 && " \
-+		"bootm ${kernel_load_address} - ${devicetree_load_address}\0" \
-+	"jtagboot=echo TFTPing Linux to RAM... && " \
-+		"run leds_bootstate_0 && " \
-+		"tftpboot ${kernel_load_address} ${kernel_image} && " \
-+		"tftpboot ${devicetree_load_address} ${devicetree_image} && " \
-+/* \
-+		PG: initramfs generated is the rootfs, archived with cpio, compressed with gz and given a u-boot header, we instead use usbfs directly 
-+		"tftpboot ${ramdisk_load_address} ${ramdisk_image} && " \
++
++	"qspiboot=echo Copying Linux from QSPI flash to RAM... && " \
++		"sf probe 0 0 0 && " \
++		"sf read ${kernel_load_address} 0x100000 ${kernel_size} && " \
++		"sf read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
++		"echo Copying ramdisk... && " \
++		"sf read ${ramdisk_load_address} 0x620000 ${ramdisk_size} && " \
 +		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-+*/ \
-+		"run leds_bootstate_2 && " \
-+		"bootm ${kernel_load_address} - ${devicetree_load_address}\0" \
-+	"mtdparts=nand0:0x2E0000(fsbl_bitstream_uboot),0x20000(uboot_env),0x500000(kernel),0x20000(device_tree),-(rootfs)\0" \
-+        	DFU_ALT_INFO \
-+		BOOTENV
++*/
 +
 +#endif /* __CONFIG_ZYNQ_EBAZ4205_H */
